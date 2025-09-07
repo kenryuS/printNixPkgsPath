@@ -1,12 +1,10 @@
-lib: packages:
+packages:
   let
-    forEach = lib.lists.forEach;
-    foldl' = lib.lists.foldl';
-
-    package_infos = forEach packages (x: {
+    foldl' = builtins.foldl';
+    package_infos = map (x: {
       name = x.name;
-      outs = forEach (x.outputs) (y: x.${y});
-    });
+      outs = map (y: x.${y}) (x.outputs);
+    }) packages;
 
     cmds = x:
     let
@@ -23,6 +21,6 @@ lib: packages:
   in
     ''
     function printNixPkgsPath() {
-        ${foldl' (a: x: a + x) "" (forEach package_infos (x: cmds x))}
+        ${foldl' (a: x: a + x) "" (map (x: cmds x) package_infos)}
     }
     ''
